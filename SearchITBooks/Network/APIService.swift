@@ -9,7 +9,7 @@ import Foundation
 class APIService {
 	private let client = APIClient()
 
-	func searchBooks(keyword: String, completion: @escaping (Result<[Book], Error>) -> Void) {
+	func searchBooks(keyword: String, completion: @escaping (Result<[BookInfo], Error>) -> Void) {
 		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword
 		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)") else {
 			completion(.failure(APIError.invalidURL))
@@ -26,7 +26,7 @@ class APIService {
 		}
 	}
 	
-	func searchBooks(keyword: String) async throws -> [Book] {
+	func searchBooks(keyword: String) async throws -> [BookInfo] {
 		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword
 		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)") else {
 			throw APIError.invalidURL
@@ -35,4 +35,13 @@ class APIService {
 		let response = try await client.request(url: url, responseType: BookSearchResponse.self)
 		return response.books
 	}
+	
+	func fetchBookDetail(isbn13: String) async throws -> BookInfo {
+		guard let url = URL(string: "https://api.itbook.store/1.0/books/\(isbn13)") else {
+			throw APIError.invalidURL
+		}
+		let response = try await client.request(url: url, responseType: BookDetailResponse.self)
+		return response.book
+	}
+	
 }
