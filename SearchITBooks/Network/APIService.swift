@@ -26,22 +26,21 @@ class APIService {
 		}
 	}
 	
-	func searchBooks(keyword: String) async throws -> [BookInfo] {
+	func searchBooks(keyword: String, page: Int) async throws -> BookSearchResponse {
 		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword
 		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)") else {
 			throw APIError.invalidURL
 		}
 
-		let response = try await client.request(url: url, responseType: BookSearchResponse.self)
-		return response.books
+		return try await client.request(url: url, responseType: BookSearchResponse.self)
 	}
 	
-	func fetchBookDetail(isbn13: String) async throws -> BookInfo {
+	func fetchBookDetail(isbn13: String) async throws -> BookDetailResponse {
 		guard let url = URL(string: "https://api.itbook.store/1.0/books/\(isbn13)") else {
 			throw APIError.invalidURL
 		}
-		let response = try await client.request(url: url, responseType: BookDetailResponse.self)
-		return response.book
+		
+		return try await client.request(url: url, responseType: BookDetailResponse.self)
 	}
 	
 }

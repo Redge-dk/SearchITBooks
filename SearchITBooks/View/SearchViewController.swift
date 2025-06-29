@@ -56,9 +56,16 @@ class SearchViewController: UIViewController {
 
 extension SearchViewController: UISearchBarDelegate {
 	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-		guard let text = searchBar.text, !text.isEmpty else { return }
+		guard let text = searchBar.text, text.isEmpty == false else { return }
 		viewModel.search(keyword: text)
 		searchBar.resignFirstResponder()
+	}
+
+	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+		if searchText.isEmpty {
+			viewModel.reset()
+			tableView.reloadData()
+		}
 	}
 }
 
@@ -80,5 +87,9 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		print("did select")
+	}
+	
+	func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+		viewModel.loadNextPage(currentIndex: indexPath.row)
 	}
 }

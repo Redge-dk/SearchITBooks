@@ -16,8 +16,8 @@ class DetailViewModel: ObservableObject {
 	func fetchDetail(isbn13: String) {
 		Task {
 			do {
-				let detailedBook = try await apiService.fetchBookDetail(isbn13: isbn13)
-				self.book = detailedBook
+				let response = try await apiService.fetchBookDetail(isbn13: isbn13)
+				self.book = response.book
 				self.error = nil
 			} catch {
 				self.book = nil
