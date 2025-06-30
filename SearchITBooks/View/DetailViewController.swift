@@ -17,9 +17,11 @@ class DetailViewController: UIViewController {
 	
 	private let viewModel = DetailViewModel()
 
+	@IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+	
 	@IBOutlet weak var labelTitle: UILabel!
 	@IBOutlet weak var labelSubTitle: UILabel!
-	@IBOutlet weak var imageView: UIImageView!
+	@IBOutlet weak var imageViewThumbnail: UIImageView!
 	@IBOutlet weak var labelAuthors: UILabel!
 	@IBOutlet weak var labelPublisher: UILabel!
 	@IBOutlet weak var labelLanguage: UILabel!
@@ -37,12 +39,17 @@ class DetailViewController: UIViewController {
 		super.viewDidLoad()
 
 		Task {
+			await MainActor.run {
+				loadingIndicator.startAnimating()
+			}
+
 			await viewModel.fetchDetail(isbn13: isbn13)
-			for await book in viewModel.$book.values {
+			if let book = viewModel.book, let detail = book.detail {
+				let image = await ImageLoader.shared.load(from: book.image)
 				await MainActor.run {
-					guard let book, let detail = book.detail else { return }
 					labelTitle.text = book.title
 					labelSubTitle.text = book.subtitle
+					imageViewThumbnail.image = image
 					labelAuthors.text = "Authors : " + detail.authors
 					labelPublisher.text = "Publisher : " + detail.publisher
 					labelLanguage.text = "Language : " + detail.language
@@ -63,8 +70,15 @@ class DetailViewController: UIViewController {
 					} else {
 						labelPdf?.isHidden = true
 					}
+					
+					loadingIndicator.stopAnimating()
+				}
+			} else {
+				await MainActor.run {
+					loadingIndicator.stopAnimating()
 				}
 			}
+			
 		}
 	}
 }

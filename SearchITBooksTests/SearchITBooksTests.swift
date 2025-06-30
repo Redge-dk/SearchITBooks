@@ -32,6 +32,7 @@ final class SearchITBooksTests: XCTestCase {
 			// Put the code you want to measure the time of here.
 		}
 	}
+	
 
 	func testBookSearchResponseDecoding() throws {
 		let json = """
@@ -64,6 +65,7 @@ final class SearchITBooksTests: XCTestCase {
 		XCTAssertEqual(decoded.books.count, 2)
 		XCTAssertEqual(decoded.books.first?.title, "SQL Queries for Mere Mortals, 4th Edition")
 	}
+	
 
 	func testBookDetailResponseDecoding() throws {
 		let json = """
@@ -90,6 +92,7 @@ final class SearchITBooksTests: XCTestCase {
 		XCTAssertEqual(decoded.book.title, "SQL Queries for Mere Mortals, 4th Edition")
 		XCTAssertEqual(decoded.book.detail?.authors, "John L. Viescas")
 	}
+	
 	
 	func testBookDetailResponseDecodingWithPdf() throws {
 		let json = """
@@ -128,23 +131,41 @@ final class SearchITBooksTests: XCTestCase {
 		
 		mock.searchResult = BookSearchResponse(error: "0", total: 20, page: 1, books: (1...10).map {
 			BookInfo(title: "Book \($0)", subtitle: "Subtitle \($0)", isbn13: "\($0)", price: "$\($0)", image: "image:\($0)", url: "url:\($0)")
-		   })
+		})
 		
 		let viewModel = SearchViewModel(service: mock)
 		
 		await viewModel.search(keyword: "keyword")
 		
-		XCTAssertFalse(viewModel.books.isEmpty, "검색 결과가 비어있음")
+		XCTAssertFalse(viewModel.books.isEmpty, "검색 결과가 비어있으면 안됨")
 		let initialBooks = viewModel.books
 		let initialPage = viewModel.currentPage
 		
 		mock.searchResult = BookSearchResponse(error: "0", total: 20, page: 2, books: (1...10).map {
 			BookInfo(title: "Book \($0)", subtitle: "Subtitle \($0)", isbn13: "\($0)", price: "$\($0)", image: "image:\($0)", url: "url:\($0)")
-		   })
+		})
 		
 		await viewModel.loadNextPage(currentIndex: initialBooks.count - 1)
-
+		
 		XCTAssertEqual(viewModel.currentPage, initialPage + 1, "currentPage가 증가해야 함")
-		XCTAssertTrue(viewModel.books.count > initialBooks.count, "books가 append되어야 함")	}
+		XCTAssertTrue(viewModel.books.count > initialBooks.count, "books가 append되어야 함")
+	}
+	
+	
+	func testImageLoaderAndCache() async {
+		ImageCache.shared.clear()
+		
+		let imageURL = "https://itbook.store/img/books/9780134858333.png"
+
+		let cachedBefore = ImageCache.shared.image(forKey: imageURL)
+		XCTAssertNil(cachedBefore, "이미지 캐시가 비어있어야 함")
+
+		let image = await ImageLoader.shared.load(from: imageURL)
+		XCTAssertNotNil(image, "이미지가 정상적으로 로드되어야 함")
+
+		let cachedAfter = ImageCache.shared.image(forKey: imageURL)
+		XCTAssertNotNil(cachedAfter, "이미지가 캐시에 저장되어야 함")
+		XCTAssertEqual(image?.pngData(), cachedAfter?.pngData(), "캐시된 이미지와 로드된 이미지가 동일해야 함")
+	}
 
 }

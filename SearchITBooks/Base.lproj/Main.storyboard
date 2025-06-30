@@ -106,6 +106,7 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="imageViewThumbnail" destination="8ad-kh-ZaJ" id="HHc-5u-XVv"/>
                                             <outlet property="labelIsbn13" destination="tkv-4K-KQN" id="Qde-ue-gCa"/>
                                             <outlet property="labelPrice" destination="ZFN-U2-z3a" id="lFQ-EG-Fon"/>
                                             <outlet property="labelSubTitle" destination="fyh-ov-2I2" id="964-Pn-JHJ"/>
@@ -120,21 +121,30 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="XJ1-Gb-Ozy"/>
                                 </connections>
                             </tableView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="2dg-ok-8Qz">
+                                <rect key="frame" x="0.0" y="218" width="393" height="634"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="cwi-Ut-cnd" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="5mf-2L-24p"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="2dg-ok-8Qz" secondAttribute="trailing" id="DuM-gI-h0c"/>
                             <constraint firstItem="5r2-CZ-MW3" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="F99-Pd-7F9"/>
                             <constraint firstItem="5r2-CZ-MW3" firstAttribute="top" secondItem="cwi-Ut-cnd" secondAttribute="bottom" id="FmS-md-AYk"/>
                             <constraint firstAttribute="bottom" secondItem="5r2-CZ-MW3" secondAttribute="bottom" id="LKQ-Ip-Fxa"/>
+                            <constraint firstItem="2dg-ok-8Qz" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="NwU-c6-FxW"/>
+                            <constraint firstItem="2dg-ok-8Qz" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="56" id="gc1-I2-jZd"/>
                             <constraint firstItem="cwi-Ut-cnd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="h7C-0d-lGO"/>
                             <constraint firstItem="5r2-CZ-MW3" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="lLO-06-4zS"/>
+                            <constraint firstItem="2dg-ok-8Qz" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="68" id="lV5-mn-x47"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cwi-Ut-cnd" secondAttribute="trailing" id="tBG-81-aTA"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="5xs-Rm-yWw"/>
                     <connections>
+                        <outlet property="loadingIndicator" destination="2dg-ok-8Qz" id="NMY-N7-9C2"/>
                         <outlet property="searchBar" destination="cwi-Ut-cnd" id="YIc-Gi-NNy"/>
                         <outlet property="tableView" destination="5r2-CZ-MW3" id="hxj-rj-JxC"/>
                     </connections>
@@ -273,11 +283,19 @@
                                 <viewLayoutGuide key="contentLayoutGuide" id="Bby-yT-Hww"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="XdK-WW-zgp"/>
                             </scrollView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Ytz-BS-9Dg">
+                                <rect key="frame" x="0.0" y="162" width="393" height="622"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="94G-YA-T21"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="Ytz-BS-9Dg" firstAttribute="leading" secondItem="94G-YA-T21" secondAttribute="leading" id="3YS-6p-x1v"/>
                             <constraint firstItem="FlV-Dc-3WZ" firstAttribute="top" secondItem="94G-YA-T21" secondAttribute="top" id="42h-J7-TyC"/>
+                            <constraint firstItem="94G-YA-T21" firstAttribute="trailing" secondItem="Ytz-BS-9Dg" secondAttribute="trailing" id="SzP-Ke-6DM"/>
+                            <constraint firstItem="Ytz-BS-9Dg" firstAttribute="top" secondItem="94G-YA-T21" secondAttribute="top" id="ao5-34-bRl"/>
+                            <constraint firstItem="94G-YA-T21" firstAttribute="bottom" secondItem="Ytz-BS-9Dg" secondAttribute="bottom" id="caJ-7C-VFD"/>
                             <constraint firstItem="94G-YA-T21" firstAttribute="trailing" secondItem="FlV-Dc-3WZ" secondAttribute="trailing" id="oei-jH-RmZ"/>
                             <constraint firstItem="FlV-Dc-3WZ" firstAttribute="leading" secondItem="94G-YA-T21" secondAttribute="leading" id="rlu-gg-ZA9"/>
                             <constraint firstItem="94G-YA-T21" firstAttribute="bottom" secondItem="FlV-Dc-3WZ" secondAttribute="bottom" id="xY6-r7-Gq5"/>
@@ -285,7 +303,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="g3h-pA-PqI"/>
                     <connections>
-                        <outlet property="imageView" destination="hC4-k4-PWr" id="riF-At-uBH"/>
+                        <outlet property="imageViewThumbnail" destination="hC4-k4-PWr" id="tpt-uU-6vI"/>
                         <outlet property="labelAuthors" destination="fIt-XS-gft" id="Th7-fI-2yO"/>
                         <outlet property="labelDesc" destination="K4B-2r-lb5" id="ywZ-7C-zQS"/>
                         <outlet property="labelIsbn10" destination="NwB-7g-eQM" id="0Fo-Zr-6bw"/>
@@ -300,6 +318,7 @@
                         <outlet property="labelTitle" destination="dXX-uy-XXf" id="fAy-ve-sJb"/>
                         <outlet property="labelUrl" destination="jMW-3T-EAD" id="9Ug-uk-qii"/>
                         <outlet property="labelYear" destination="28I-QJ-Zlj" id="kaY-Yr-7RF"/>
+                        <outlet property="loadingIndicator" destination="Ytz-BS-9Dg" id="9Sz-QE-nPE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1pO-CQ-xrG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

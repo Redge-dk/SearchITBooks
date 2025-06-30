@@ -16,7 +16,7 @@ class APIService: APIServiceProtocol {
 	
 	func searchBooks(keyword: String, page: Int) async throws -> BookSearchResponse {
 		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword
-		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)") else {
+		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)/\(page)") else {
 			throw APIError.invalidURL
 		}
 

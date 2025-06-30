@@ -7,11 +7,14 @@
 import UIKit
 
 class BookListCell: UITableViewCell {
+	@IBOutlet weak var imageViewThumbnail: UIImageView!
 	@IBOutlet weak var labelTitle: UILabel!
 	@IBOutlet weak var labelSubTitle: UILabel!
 	@IBOutlet weak var labelIsbn13: UILabel!
 	@IBOutlet weak var labelPrice: UILabel!
 	@IBOutlet weak var labelUrl: UILabel!
+	
+	private var imageUrl: String?
 	
 	func configure(with book: BookInfo) {
 		labelTitle.text = book.title
@@ -20,12 +23,31 @@ class BookListCell: UITableViewCell {
 		labelIsbn13.text = book.isbn13
 		labelPrice.text = book.price
 		labelUrl.text = book.url
+		
+		imageUrl = book.image
+		imageViewThumbnail.image = nil
+
+		Task {
+			let image = await ImageLoader.shared.load(from: book.image)
+			await MainActor.run {
+				if self.imageUrl == book.image {
+					self.imageViewThumbnail.image = image
+				}
+			}
+		}
+	}
+	
+	override func prepareForReuse() {
+		super.prepareForReuse()
+		imageViewThumbnail.image = nil
+		imageUrl = nil
 	}
 }
 
 class SearchViewController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var searchBar: UISearchBar!
+	@IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
 	
 	private let viewModel = SearchViewModel()
 
@@ -58,7 +80,16 @@ extension SearchViewController: UISearchBarDelegate {
 	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 		guard let text = searchBar.text, text.isEmpty == false else { return }
 		Task {
+			await MainActor.run {
+				loadingIndicator.startAnimating()
+			}
+			
 			await viewModel.search(keyword: text)
+			
+			await MainActor.run {
+				loadingIndicator.stopAnimating()
+			}
+			
 			searchBar.resignFirstResponder()
 		}
 	}
@@ -88,7 +119,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
 	}
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		print("did select")
+		tableView.deselectRow(at: indexPath, animated: true)
 	}
 	
 	func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
