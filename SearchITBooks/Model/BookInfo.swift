@@ -5,31 +5,6 @@
 //  Created by Regina on 6/29/25.
 //
 
-/*
- {
-	 error: "0",
-	 total: "422",
-	 page: "1",
-	 books: [
-		 {
-			 title: "SQL Queries for Mere Mortals, 4th Edition",
-			 subtitle: "A Hands-On Guide to Data Manipulation in SQL",
-			 isbn13: "9780134858333",
-			 price: "$18.13",
-			 image: "https://itbook.store/img/books/9780134858333.png",
-			 url: "https://itbook.store/books/9780134858333"
-		 },
-		 {
-			 title: "SQL Server 2019 Administration Inside Out",
-			 subtitle: "",
-			 isbn13: "9780135561089",
-			 price: "$48.15",
-			 image: "https://itbook.store/img/books/9780135561089.png",
-			 url: "https://itbook.store/books/9780135561089"
-		 }
-	 ]
- }
- */
 struct BookSearchResponse: Decodable {
 	let error: String
 	let total: Int
@@ -47,27 +22,15 @@ struct BookSearchResponse: Decodable {
 		self.page = Int(try container.decode(String.self, forKey: .page)) ?? 1
 		self.books = try container.decode([BookInfo].self, forKey: .books)
 	}
+	
+	init(error: String, total: Int, page: Int, books: [BookInfo]) {
+		self.error = error
+		self.total = total
+		self.page = page
+		self.books = books
+	}
 }
 
-/*
- {
-	 error: "0",
-	 title: "SQL Queries for Mere Mortals, 4th Edition",
-	 subtitle: "A Hands-On Guide to Data Manipulation in SQL",
-	 authors: "John L. Viescas",
-	 publisher: "Addison-Wesley",
-	 language: "English",
-	 isbn10: "0134858336",
-	 isbn13: "9780134858333",
-	 pages: "960",
-	 year: "2018",
-	 rating: "4",
-	 desc: "SQL Queries for Mere Mortals has earned worldwide praise as the clearest, simplest tutorial on writing effective queries with the latest SQL standards and database applications. Now, author John L. Viescas has updated this hands-on classic with even more advanced and valuable techniques.Step by step...",
-	 price: "$18.13",
-	 image: "https://itbook.store/img/books/9780134858333.png",
-	 url: "https://itbook.store/books/9780134858333"
- }
- */
 struct BookDetailResponse: Decodable {
 	let error: String
 	let book: BookInfo

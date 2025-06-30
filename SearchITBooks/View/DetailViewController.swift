@@ -36,8 +36,8 @@ class DetailViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		viewModel.fetchDetail(isbn13: isbn13)
 		Task {
+			await viewModel.fetchDetail(isbn13: isbn13)
 			for await book in viewModel.$book.values {
 				await MainActor.run {
 					guard let book, let detail = book.detail else { return }

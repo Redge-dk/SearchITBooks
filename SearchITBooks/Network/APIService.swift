@@ -6,25 +6,13 @@
 //
 import Foundation
 
-class APIService {
+protocol APIServiceProtocol {
+	func searchBooks(keyword: String, page: Int) async throws -> BookSearchResponse
+	func fetchBookDetail(isbn13: String) async throws -> BookDetailResponse
+}
+
+class APIService: APIServiceProtocol {
 	private let client = APIClient()
-
-	func searchBooks(keyword: String, completion: @escaping (Result<[BookInfo], Error>) -> Void) {
-		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword
-		guard let url = URL(string: "https://api.itbook.store/1.0/search/\(encoded)") else {
-			completion(.failure(APIError.invalidURL))
-			return
-		}
-
-		client.request(url: url, type: BookSearchResponse.self) { result in
-			switch result {
-			case .success(let response):
-				completion(.success(response.books))
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
-	}
 	
 	func searchBooks(keyword: String, page: Int) async throws -> BookSearchResponse {
 		let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? keyword

@@ -57,8 +57,10 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UISearchBarDelegate {
 	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 		guard let text = searchBar.text, text.isEmpty == false else { return }
-		viewModel.search(keyword: text)
-		searchBar.resignFirstResponder()
+		Task {
+			await viewModel.search(keyword: text)
+			searchBar.resignFirstResponder()
+		}
 	}
 
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -90,6 +92,8 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
 	}
 	
 	func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-		viewModel.loadNextPage(currentIndex: indexPath.row)
+		Task {
+			await viewModel.loadNextPage(currentIndex: indexPath.row)
+		}
 	}
 }
