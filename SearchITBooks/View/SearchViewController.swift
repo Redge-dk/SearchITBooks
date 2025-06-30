@@ -54,6 +54,9 @@ class SearchViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		title = "IT Books Search"
+		navigationItem.backButtonDisplayMode = .minimal
+		navigationController?.navigationBar.prefersLargeTitles = true
+		navigationItem.largeTitleDisplayMode = .automatic
 		requestData()
 	}
 	
