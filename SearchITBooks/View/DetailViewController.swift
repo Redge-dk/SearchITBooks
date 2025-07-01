@@ -44,6 +44,8 @@ class DetailViewController: UIViewController {
 		super.viewDidLoad()
 		navigationItem.largeTitleDisplayMode = .never
 		
+		labelTitle.accessibilityIdentifier = "DetailLabelTitle"
+		
 		Task {
 			await MainActor.run {
 				loadingIndicator.startAnimating()

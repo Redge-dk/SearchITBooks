@@ -59,6 +59,10 @@ class SearchViewController: UIViewController {
 		navigationItem.backButtonDisplayMode = .minimal
 		navigationController?.navigationBar.prefersLargeTitles = true
 		navigationItem.largeTitleDisplayMode = .automatic
+		
+		tableView.accessibilityIdentifier = "SearchTableView"
+		viewError.accessibilityIdentifier = "SearchViewError"
+		
 		requestData()
 	}
 	

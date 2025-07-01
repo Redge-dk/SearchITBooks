@@ -21,15 +21,80 @@ final class SearchITBooksUITests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+	
+	@MainActor
+	func testSearchResultsAreDisplayed() {
+		let app = XCUIApplication()
+		app.launch()
+		
+		let searchField = app.searchFields.firstMatch
+		XCTAssertTrue(searchField.exists)
+		
+		searchField.tap()
+		searchField.typeText("Swift")
+		app.keyboards.buttons["Search"].tap()
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+		let firstCell = app.tables.cells.firstMatch
+		let exists = firstCell.waitForExistence(timeout: 5)
+		
+		XCTAssertTrue(exists, "검색 결과 셀이 나타나야 함")
+	}
+	
+	@MainActor
+	func testPaginationLoadsMoreResults() {
+		let app = XCUIApplication()
+		app.launch()
+		
+		let searchField = app.searchFields.firstMatch
+		XCTAssertTrue(searchField.exists)
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
+		searchField.tap()
+		searchField.typeText("Swift")
+		app.keyboards.buttons["Search"].tap()
+
+		let tableView = app.tables["SearchTableView"]
+		XCTAssertTrue(tableView.waitForExistence(timeout: 5))
+
+		let startCount = tableView.cells.count
+
+		tableView.swipeUp()
+		sleep(2) // 다음 페이지 로딩 시간 대기
+
+		let endCount = tableView.cells.count
+		XCTAssertTrue(endCount > startCount, "스크롤 후 결과가 더 많아야 함")
+	}
+
+	@MainActor
+	func testTapCellShowsDetailView() {
+		let app = XCUIApplication()
+		app.launch()
+
+		let searchField = app.searchFields.firstMatch
+		searchField.tap()
+		searchField.typeText("Swift")
+		app.keyboards.buttons["Search"].tap()
+
+		let firstCell = app.tables.cells.firstMatch
+		XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
+		firstCell.tap()
+
+		let detailTitle = app.staticTexts["DetailLabelTitle"]
+		XCTAssertTrue(detailTitle.waitForExistence(timeout: 5), "디테일 화면으로 전환돼야 함")
+	}
+	
+	@MainActor
+	func testErrorViewAppearsOnFailedSearch() {
+		let app = XCUIApplication()
+		app.launch()
+		
+		let searchField = app.searchFields.firstMatch
+		searchField.tap()
+		searchField.typeText("k")
+		app.keyboards.buttons["Search"].tap()
+
+		let errorView = app.otherElements["SearchViewError"]
+		XCTAssertTrue(errorView.waitForExistence(timeout: 3), "에러 뷰가 표시되어야 함")
+	}
 
     @MainActor
     func testLaunchPerformance() throws {
