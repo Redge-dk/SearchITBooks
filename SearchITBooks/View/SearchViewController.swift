@@ -48,6 +48,8 @@ class SearchViewController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var searchBar: UISearchBar!
 	@IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var viewError: UIView!
+	@IBOutlet weak var labelErrorMsg: UILabel!
 	
 	private let viewModel = SearchViewModel()
 
@@ -82,24 +84,30 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UISearchBarDelegate {
 	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 		guard let text = searchBar.text, text.isEmpty == false else { return }
+		searchBar.resignFirstResponder()
+		
 		Task {
 			await MainActor.run {
 				loadingIndicator.startAnimating()
 			}
 			
 			await viewModel.search(keyword: text)
-			
 			await MainActor.run {
+				if let error = viewModel.error {
+					viewError.isHidden = false
+					labelErrorMsg.text = error.localizedDescription
+				} else {
+					viewError.isHidden = true
+				}
 				loadingIndicator.stopAnimating()
 			}
-			
-			searchBar.resignFirstResponder()
 		}
 	}
 
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		if searchText.isEmpty {
 			viewModel.reset()
+			viewError.isHidden = true
 			tableView.reloadData()
 		}
 	}

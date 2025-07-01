@@ -20,6 +20,8 @@ class DetailViewController: UIViewController {
 	private let viewModel = DetailViewModel()
 	
 	@IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var viewError: UIView!
+	@IBOutlet weak var labelErrorMsg: UILabel!
 	
 	@IBOutlet weak var labelTitle: UILabel!
 	@IBOutlet weak var labelSubTitle: UILabel!
@@ -31,7 +33,7 @@ class DetailViewController: UIViewController {
 	@IBOutlet weak var labelIsbn13: UILabel!
 	@IBOutlet weak var labelPages: UILabel!
 	@IBOutlet weak var labelYear: UILabel!
-	@IBOutlet weak var labelRating: UILabel!
+	@IBOutlet weak var stackViewRating: UIStackView!
 	@IBOutlet weak var labelPrice: UILabel!
 	@IBOutlet weak var labelDesc: UILabel!
 	@IBOutlet weak var textViewUrl: LinkedTextView!
@@ -48,33 +50,13 @@ class DetailViewController: UIViewController {
 			}
 			
 			await viewModel.fetchDetail(isbn13: isbn13)
-			if let book = viewModel.book, let detail = book.detail {
+			if let error = viewModel.error {
+				viewError.isHidden = false
+				labelErrorMsg.text = error.localizedDescription
+			} else if let book = viewModel.book, let detail = book.detail {
 				let image = await ImageLoader.shared.load(from: book.image)
 				await MainActor.run {
-					labelTitle.text = book.title
-					labelSubTitle.text = book.subtitle
-					imageViewThumbnail.image = image
-					labelAuthors.text = detail.authors
-					labelPublisher.text = detail.publisher
-					labelLanguage.text = detail.language
-					labelIsbn10.text = detail.isbn10
-					labelIsbn13.text = book.isbn13
-					labelPages.text = detail.pages
-					labelYear.text = detail.year
-					labelRating.text = detail.rating
-					labelPrice.text = book.price
-					labelDesc.text = detail.desc
-					textViewUrl.text = book.url
-					if detail.pdf.isEmpty == false {
-						let str: String = detail.pdf.reduce("") { partialResult, newValue in
-							partialResult.isEmpty ? "\(newValue.key) : \(newValue.value)" : "\(partialResult)\n\(newValue.key) : \(newValue.value)"
-						}
-						textViewPdf.text = str
-						stackViewPdf.isHidden = false
-					} else {
-						stackViewPdf.isHidden = true
-					}
-					
+					bind(book: book, detail: detail, image: image)
 					loadingIndicator.stopAnimating()
 				}
 			} else {
@@ -82,7 +64,60 @@ class DetailViewController: UIViewController {
 					loadingIndicator.stopAnimating()
 				}
 			}
-			
+		}
+	}
+	
+	private func bind(book: BookInfo, detail: BookDetailInfo, image: UIImage?) {
+		labelTitle.text = book.title
+		labelSubTitle.text = book.subtitle
+		imageViewThumbnail.image = image
+		labelPrice.text = book.price
+		if let rating = Double(detail.rating) {
+			configureRatingView(stackViewRating, with: rating)
+		}
+		labelAuthors.text = detail.authors
+		labelPublisher.text = detail.publisher
+		labelYear.text = detail.year
+		labelPages.text = detail.pages
+		labelLanguage.text = detail.language
+		labelIsbn10.text = detail.isbn10
+		labelIsbn13.text = book.isbn13
+		labelDesc.text = detail.desc
+		textViewUrl.text = book.url
+		if detail.pdf.isEmpty == false {
+			let pdfText = detail.pdf.map { "\($0.key) : \($0.value)" }.joined(separator: "\n")
+			textViewPdf.text = pdfText
+			stackViewPdf.isHidden = false
+		} else {
+			stackViewPdf.isHidden = true
+		}
+	}
+	
+	private func configureRatingView(_ stackView: UIStackView, with rating: Double) {
+		
+		stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+		let fullStars = Int(rating)
+		let hasHalfStar = rating - Double(fullStars) >= 0.5
+		let emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
+		
+		let addStar: (String) -> UIImageView = { systemName in
+			let imageView = UIImageView(image: UIImage(systemName: systemName))
+			imageView.tintColor = .systemYellow
+			imageView.contentMode = .scaleAspectFit
+			imageView.translatesAutoresizingMaskIntoConstraints = false
+			NSLayoutConstraint.activate([
+				imageView.widthAnchor.constraint(equalToConstant: 16),
+				imageView.heightAnchor.constraint(equalToConstant: 16)
+			])
+			return imageView
+		}
+
+		let starTypes = Array(repeating: "star.fill", count: fullStars)
+					+ (hasHalfStar ? ["star.leadinghalf.filled"] : [])
+					+ Array(repeating: "star", count: emptyStars)
+		for name in starTypes {
+			stackView.addArrangedSubview(addStar(name))
 		}
 	}
 }
@@ -139,3 +174,5 @@ class LinkedTextView: UITextView {
 	}
 }
 
+
+	

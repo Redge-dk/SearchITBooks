@@ -20,8 +20,15 @@ class DetailViewModel: ObservableObject {
 	func fetchDetail(isbn13: String) async {
 		do {
 			let response = try await apiService.fetchBookDetail(isbn13: isbn13)
-			self.book = response.book
-			self.error = nil
+			
+			if response.error != "0" {
+				self.book = nil
+				self.error = APIError.error(response.error)
+			} else {
+				self.book = response.book
+				self.error = nil
+			}
+			
 		} catch {
 			self.book = nil
 			self.error = error

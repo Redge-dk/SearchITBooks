@@ -19,7 +19,7 @@ struct BookSearchResponse: Decodable {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		self.error = try container.decode(String.self, forKey: .error)
 		self.total = Int(try container.decode(String.self, forKey: .total)) ?? 0
-		self.page = Int(try container.decode(String.self, forKey: .page)) ?? 1
+		self.page = Int(try container.decodeIfPresent(String.self, forKey: .page) ?? "1") ?? 1
 		self.books = try container.decode([BookInfo].self, forKey: .books)
 	}
 	
@@ -68,6 +68,11 @@ struct BookDetailResponse: Decodable {
 			url: try container.decode(String.self, forKey: .url),
 			detail: detail
 		)
+	}
+	
+	init(error: String, book: BookInfo) {
+		self.error = error
+		self.book = book
 	}
 }
 

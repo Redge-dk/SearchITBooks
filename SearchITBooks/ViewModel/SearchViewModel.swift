@@ -29,17 +29,32 @@ class SearchViewModel: ObservableObject {
 		defer { isLoading = false }
 		
 		do {
-			let result = try await apiService.searchBooks(keyword: keyword, page: page)
+			let response = try await apiService.searchBooks(keyword: keyword, page: page)
 			self.currentKeyword = keyword
 			self.currentPage = page
-			self.totalCount = result.total
+			self.totalCount = response.total
+			
+			//error 발생
+			guard response.error == "0" else {
+				self.books = []
+				self.error = APIError.error(response.error)
+				return
+			}
+			
+			//no data
+			guard !(page == 1 && response.books.isEmpty == true) else {
+				self.books = []
+				self.error = APIError.noData
+				return
+			}
 
 			if page == 1 {
-				self.books = result.books
+				self.books = response.books
 			} else {
-				self.books += result.books
+				self.books += response.books
 			}
 			self.error = nil
+			
 		} catch {
 			if page == 1 {
 				self.books = []
